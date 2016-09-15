@@ -1,5 +1,6 @@
 package com.harryio.orainteractive;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -31,7 +32,13 @@ public class LoginActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.login:
                 break;
+
             case R.id.register:
+                Intent intent = new Intent(this, RegisterActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+
                 break;
         }
     }
