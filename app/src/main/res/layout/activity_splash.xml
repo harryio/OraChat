@@ -14,4 +14,4 @@
     android:textColor="@color/white"
     android:textSize="28sp"
     android:textStyle="bold"
-    tools:context="com.harryio.orainteractive.SplashActivity"/>
+    tools:context=".ui.SplashActivity"/>

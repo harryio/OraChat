@@ -1,7 +1,9 @@
-package com.harryio.orainteractive;
+package com.harryio.orainteractive.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.harryio.orainteractive.R;
 
 public class MainActivity extends AppCompatActivity {
 

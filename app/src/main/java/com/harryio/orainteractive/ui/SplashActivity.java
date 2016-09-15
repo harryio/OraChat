@@ -1,9 +1,13 @@
-package com.harryio.orainteractive;
+package com.harryio.orainteractive.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+
+import com.harryio.orainteractive.PrefUtils;
+import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.ui.auth.login.LoginActivity;
 
 public class SplashActivity extends AppCompatActivity {
     private static final int SPLASH_DISPLAY_DURATION = 1000;
