@@ -9,14 +9,15 @@ import android.support.v7.app.AppCompatActivity;
 import com.harryio.orainteractive.R;
 import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.ui.account.AccountFragment;
-import com.harryio.orainteractive.ui.adapter.ViewPagerAdapter;
+import com.harryio.orainteractive.ui.chat.ChatsFragment;
 
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-        implements AccountFragment.OnFragmentInteractionListener {
+        implements AccountFragment.OnFragmentInteractionListener,
+        ChatsFragment.OnFragmentInteractionListener {
 
     @BindView(R.id.viewPager)
     ViewPager viewPager;

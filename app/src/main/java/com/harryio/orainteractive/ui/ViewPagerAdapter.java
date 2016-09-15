@@ -1,11 +1,11 @@
-package com.harryio.orainteractive.ui.adapter;
+package com.harryio.orainteractive.ui;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.harryio.orainteractive.ui.ChatsFragment;
 import com.harryio.orainteractive.ui.account.AccountFragment;
+import com.harryio.orainteractive.ui.chat.ChatsFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     public ViewPagerAdapter(FragmentManager fm) {

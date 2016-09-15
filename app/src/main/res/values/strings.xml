@@ -28,4 +28,7 @@
     <string name="edit_user_details_successful">Profile updated</string>
     <string name="edit_user_details_error">Unable to edit profile</string>
     <string name="edit_user_details_progress">Saving profile…</string>
+
+    <!--Chat-->
+    <string name="fetch_chat_list_error">Failed to fetch chat list</string>
 </resources>
