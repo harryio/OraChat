@@ -13,10 +13,14 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                boolean isLoggedIn = PrefUtils.getInstance(SplashActivity.this)
+                        .get(PrefUtils.KEY_IS_LOGGED_IN);
+                Intent intent = isLoggedIn ? new Intent(SplashActivity.this, MainActivity.class)
+                        : new Intent(SplashActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 finish();
