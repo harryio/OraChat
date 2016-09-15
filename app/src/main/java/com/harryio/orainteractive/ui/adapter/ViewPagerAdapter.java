@@ -4,8 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.harryio.orainteractive.ui.AccountFragment;
 import com.harryio.orainteractive.ui.ChatsFragment;
+import com.harryio.orainteractive.ui.account.AccountFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     public ViewPagerAdapter(FragmentManager fm) {
@@ -16,10 +16,10 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new AccountFragment();
+                return new ChatsFragment();
 
             case 1:
-                return new ChatsFragment();
+                return new AccountFragment();
         }
         return null;
     }

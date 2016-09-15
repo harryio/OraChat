@@ -111,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onSuccessfulLogin(AuthResponse authResponse) {
         prefUtils.put(KEY_AUTH_TOKEN,
-                authResponse.getData().getToken());
+                "Bearer " + authResponse.getData().getToken());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
         Toast.makeText(LoginActivity.this, "Successfully Logged in", Toast.LENGTH_SHORT).show();

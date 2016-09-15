@@ -115,7 +115,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void onSuccessfullRegister(AuthResponse authResponse) {
-        prefUtils.put(KEY_AUTH_TOKEN, authResponse.getData().getToken());
+        prefUtils.put(KEY_AUTH_TOKEN, "Bearer " + authResponse.getData().getToken());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
         Toast.makeText(RegisterActivity.this, "New account successfully created", Toast.LENGTH_SHORT).show();
