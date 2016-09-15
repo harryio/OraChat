@@ -7,16 +7,17 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Toast;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 import com.harryio.orainteractive.ui.MainActivity;
 import com.harryio.orainteractive.ui.auth.AuthResponse;
 import com.harryio.orainteractive.ui.auth.register.RegisterActivity;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -26,6 +27,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import static com.harryio.orainteractive.PrefUtils.KEY_AUTH_TOKEN;
 import static com.harryio.orainteractive.PrefUtils.KEY_IS_LOGGED_IN;
+import static com.harryio.orainteractive.Utils.showMessage;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -36,6 +38,12 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText emailEditText;
     @BindView(R.id.password)
     TextInputEditText passwordEditText;
+    @BindString(R.string.login_successful_message)
+    String loginSuccessfulMessage;
+    @BindString(R.string.login_failed_message)
+    String loginErrorMessage;
+    @BindString(R.string.login_progress_message)
+    String loginProgressMessage;
 
     private Subscription loginSubscription;
     private ProgressDialog progressDialog;
@@ -48,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Logging in...");
+        progressDialog.setMessage(loginProgressMessage);
         prefUtils = PrefUtils.getInstance(this);
     }
 
@@ -80,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                                     progressDialog.dismiss();
                                 }
 
-                                Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                                showMessage(LoginActivity.this, loginErrorMessage);
                             }
 
                             @Override
@@ -92,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (authResponse.isSuccess()) {
                                     onSuccessfulLogin(authResponse);
                                 } else {
-                                    Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                                    showMessage(LoginActivity.this, loginErrorMessage);
                                 }
                             }
                         });
@@ -114,10 +122,9 @@ public class LoginActivity extends AppCompatActivity {
                 "Bearer " + authResponse.getData().getToken());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
-        Toast.makeText(LoginActivity.this, "Successfully Logged in", Toast.LENGTH_SHORT).show();
+        showMessage(this, loginSuccessfulMessage);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent = Utils.getClearStackIntent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }

@@ -6,16 +6,17 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Toast;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 import com.harryio.orainteractive.ui.MainActivity;
 import com.harryio.orainteractive.ui.auth.AuthResponse;
 import com.harryio.orainteractive.ui.auth.login.LoginActivity;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,8 +37,15 @@ public class RegisterActivity extends AppCompatActivity {
     TextInputEditText passwordEdittext;
     @BindView(R.id.confirm)
     TextInputEditText confirmEdittext;
+    @BindString(R.string.register_successful_message)
+    String registerSuccessfulMessage;
+    @BindString(R.string.register_failed_message)
+    String registerFailedMessage;
+    @BindString(R.string.register_progress_message)
+    String registerProgressMessage;
 
     private ProgressDialog progressDialog;
+
     private PrefUtils prefUtils;
     private Subscription registerSubscription;
 
@@ -48,7 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Creating Account...");
+        progressDialog.setMessage(registerProgressMessage);
 
         prefUtils = PrefUtils.getInstance(this);
     }
@@ -85,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     progressDialog.dismiss();
                                 }
 
-                                Toast.makeText(RegisterActivity.this, "Register new user failed", Toast.LENGTH_SHORT).show();
+                                Utils.showMessage(RegisterActivity.this, registerFailedMessage);
                             }
 
                             @Override
@@ -97,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 if (authResponse.isSuccess()) {
                                     onSuccessfullRegister(authResponse);
                                 } else {
-                                    Toast.makeText(RegisterActivity.this, "Register new user failed", Toast.LENGTH_SHORT).show();
+                                    Utils.showMessage(RegisterActivity.this, registerFailedMessage);
                                 }
                             }
                         });
@@ -118,7 +126,7 @@ public class RegisterActivity extends AppCompatActivity {
         prefUtils.put(KEY_AUTH_TOKEN, "Bearer " + authResponse.getData().getToken());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
-        Toast.makeText(RegisterActivity.this, "New account successfully created", Toast.LENGTH_SHORT).show();
+        Utils.showMessage(RegisterActivity.this, registerSuccessfulMessage);
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

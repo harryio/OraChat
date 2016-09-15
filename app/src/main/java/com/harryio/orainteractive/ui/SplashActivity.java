@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.ui.auth.login.LoginActivity;
 
 public class SplashActivity extends AppCompatActivity {
@@ -23,9 +24,8 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 boolean isLoggedIn = PrefUtils.getInstance(SplashActivity.this)
                         .get(PrefUtils.KEY_IS_LOGGED_IN, false);
-                Intent intent = isLoggedIn ? new Intent(SplashActivity.this, MainActivity.class)
-                        : new Intent(SplashActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                Class toBeLaunchedActivity = isLoggedIn ? MainActivity.class : LoginActivity.class;
+                Intent intent = Utils.getClearStackIntent(SplashActivity.this, toBeLaunchedActivity);
                 startActivity(intent);
                 finish();
             }
