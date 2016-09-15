@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OraInteractive</string>
+    <string name="splash_text">Ora\nInterative</string>
 </resources>
