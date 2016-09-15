@@ -22,4 +22,10 @@
     <string name="register_successful_message">New account successfully created</string>
     <string name="register_failed_message">Register new user failed</string>
     <string name="register_progress_message">Creating Account…</string>
+
+    <!--Account-->
+    <string name="fetch_user_details_error">Could not fetch user details</string>
+    <string name="edit_user_details_successful">Profile updated</string>
+    <string name="edit_user_details_error">Unable to edit profile</string>
+    <string name="edit_user_details_progress">Saving profile…</string>
 </resources>
