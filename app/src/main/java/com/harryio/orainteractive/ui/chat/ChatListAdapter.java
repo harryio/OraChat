@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
     public void onBindViewHolder(ChatHolder holder, int position) {
         Chat.Data chat = chats.get(position);
         holder.chatNameTextView.setText(chat.getName());
-        holder.fromUserTextView.setText(chat.getLast_message().getUser().getName());
+
+        String str = String.format("%1s - %2s", chat.getLast_message().getUser().getName(),
+                Utils.getSimpleDateString(chat.getLast_message().getCreated()));
+        holder.fromUserTextView.setText(str);
         holder.lastMessageTextView.setText(chat.getLast_message().getMessage());
+
+        String chatCreateTime = chat.getCreated();
+        if (Utils.isToday(chatCreateTime)) {
+            holder.chatTimeTextView.setText("Today");
+        } else {
+            holder.chatTimeTextView.setText(Utils.getSimpleDateString(chatCreateTime));
+        }
     }
 
     public void swapData(List<Chat.Data> chats) {
@@ -56,6 +67,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         TextView fromUserTextView;
         @BindView(R.id.last_message)
         TextView lastMessageTextView;
+        @BindView(R.id.chat_time)
+        TextView chatTimeTextView;
 
         public ChatHolder(View itemView) {
             super(itemView);
