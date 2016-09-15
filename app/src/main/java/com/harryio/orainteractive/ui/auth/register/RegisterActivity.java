@@ -118,6 +118,8 @@ public class RegisterActivity extends AppCompatActivity {
         prefUtils.put(KEY_AUTH_TOKEN, authResponse.getData().getToken());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
+        Toast.makeText(RegisterActivity.this, "New account successfully created", Toast.LENGTH_SHORT).show();
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
