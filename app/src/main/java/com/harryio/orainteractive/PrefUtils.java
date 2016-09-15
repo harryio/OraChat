@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 public class PrefUtils {
     public static final String KEY_IS_LOGGED_IN = "IS_LOGGED_IN";
+    public static final String KEY_AUTH_TOKEN = "AUTH_TOKEN";
+
     private static final String PREF_NAME = "OraChatPrefs";
     private static PrefUtils prefUtils;
     private SharedPreferences sharedPreferences;
@@ -27,7 +29,17 @@ public class PrefUtils {
         editor.apply();
     }
 
-    public boolean get(String key) {
-        return sharedPreferences.getBoolean(key, false);
+    public void put(String key, String val) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, val);
+        editor.apply();
+    }
+
+    public boolean get(String key, boolean defVal) {
+        return sharedPreferences.getBoolean(key, defVal);
+    }
+
+    public String get(String key, String defVal) {
+        return sharedPreferences.getString(key, defVal);
     }
 }

@@ -22,7 +22,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 boolean isLoggedIn = PrefUtils.getInstance(SplashActivity.this)
-                        .get(PrefUtils.KEY_IS_LOGGED_IN);
+                        .get(PrefUtils.KEY_IS_LOGGED_IN, false);
                 Intent intent = isLoggedIn ? new Intent(SplashActivity.this, MainActivity.class)
                         : new Intent(SplashActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
