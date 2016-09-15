@@ -1,6 +1,6 @@
-package com.harryio.orainteractive.ui.auth.login;
+package com.harryio.orainteractive.ui.auth;
 
-public class LoginResponse {
+public class AuthResponse {
 
     private boolean success;
 
@@ -24,7 +24,7 @@ public class LoginResponse {
 
     @Override
     public String toString() {
-        return "LoginResponse{" +
+        return "AuthResponse{" +
                 "success=" + success +
                 ", data=" + data +
                 '}';

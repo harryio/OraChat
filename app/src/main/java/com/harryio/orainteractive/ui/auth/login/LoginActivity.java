@@ -14,6 +14,7 @@ import com.harryio.orainteractive.R;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 import com.harryio.orainteractive.ui.MainActivity;
+import com.harryio.orainteractive.ui.auth.AuthResponse;
 import com.harryio.orainteractive.ui.auth.register.RegisterActivity;
 
 import butterknife.BindView;
@@ -64,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                 LoginRequest loginRequest = new LoginRequest(email, password);
                 loginSubscription = service.login(loginRequest)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<LoginResponse>() {
+                        .subscribe(new Subscriber<AuthResponse>() {
                             @Override
                             public void onCompleted() {
                                 if (loginSubscription != null && !loginSubscription.isUnsubscribed()) {
@@ -83,13 +84,13 @@ public class LoginActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onNext(LoginResponse loginResponse) {
+                            public void onNext(AuthResponse authResponse) {
                                 if (progressDialog.isShowing()) {
                                     progressDialog.dismiss();
                                 }
 
-                                if (loginResponse.isSuccess()) {
-                                    onSuccessfulLogin(loginResponse);
+                                if (authResponse.isSuccess()) {
+                                    onSuccessfulLogin(authResponse);
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
                                 }
@@ -108,9 +109,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void onSuccessfulLogin(LoginResponse loginResponse) {
+    private void onSuccessfulLogin(AuthResponse authResponse) {
         prefUtils.put(KEY_AUTH_TOKEN,
-                loginResponse.getData().getToken());
+                authResponse.getData().getToken());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
         Intent intent = new Intent(this, MainActivity.class);
