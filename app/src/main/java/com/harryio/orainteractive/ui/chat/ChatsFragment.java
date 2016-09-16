@@ -59,6 +59,12 @@ public class ChatsFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new ChatListAdapter(getActivity(), new ArrayList<ChatList.Data>(0));
+        adapter.setOnItemClickListener(new ChatListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ChatList.Data chat) {
+                listener.onItemClick(chat);
+            }
+        });
         recyclerView.setAdapter(adapter);
     }
 
@@ -136,5 +142,7 @@ public class ChatsFragment extends Fragment {
         void showMessage(String message);
 
         void onChatsLoaded();
+
+        void onItemClick(ChatList.Data chat);
     }
 }

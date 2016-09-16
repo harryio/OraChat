@@ -20,6 +20,7 @@ import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 import com.harryio.orainteractive.ui.account.AccountFragment;
 import com.harryio.orainteractive.ui.chat.Chat;
+import com.harryio.orainteractive.ui.chat.ChatList;
 import com.harryio.orainteractive.ui.chat.ChatsFragment;
 import com.harryio.orainteractive.ui.chat.CreateChatRequest;
 
@@ -204,6 +205,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onChatsLoaded() {
         animateInFab();
+    }
+
+    @Override
+    public void onItemClick(ChatList.Data chat) {
+        showMessage("Clicked");
     }
 
     @Override

@@ -15,10 +15,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHolder> {
     private Context context;
     private List<ChatList.Data> chats;
+    private OnItemClickListener onItemClickListener;
 
     public ChatListAdapter(Context context, ArrayList<ChatList.Data> chats) {
         this.chats = chats;
@@ -29,16 +31,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
     public ChatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.item_chat, parent, false);
-        return new ChatHolder(view);
+
+        return new ChatHolder(view, onItemClickListener);
     }
 
     @Override
     public void onBindViewHolder(ChatHolder holder, int position) {
         ChatList.Data chat = chats.get(position);
+        holder.bindData(chat);
+
         holder.chatNameTextView.setText(chat.getName());
 
         ChatList.Data.LastMessage lastMessage = chat.getLast_message();
-
         if (lastMessage != null) {
             String str = String.format("%1s - %2s", lastMessage.getUser().getName(),
                     Utils.getSimpleDateString(lastMessage.getCreated()));
@@ -69,6 +73,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         return chats.size();
     }
 
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(ChatList.Data chat);
+    }
+
     static class ChatHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.chat_name)
         TextView chatNameTextView;
@@ -79,9 +91,24 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         @BindView(R.id.chat_time)
         TextView chatTimeTextView;
 
-        public ChatHolder(View itemView) {
+        private ChatList.Data chat;
+        private OnItemClickListener onItemClickListener;
+
+        public ChatHolder(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            this.onItemClickListener = onItemClickListener;
+        }
+
+        public void bindData(ChatList.Data chat) {
+            this.chat = chat;
+        }
+
+        @OnClick(R.id.rootView)
+        public void onClick() {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(chat);
+            }
         }
     }
 }
