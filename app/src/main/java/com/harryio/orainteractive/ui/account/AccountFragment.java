@@ -8,8 +8,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
@@ -49,6 +51,12 @@ public class AccountFragment extends Fragment {
     String profileEditSuccessfulMessage;
     @BindString(R.string.edit_user_details_error)
     String profileEditFailedMessage;
+    @BindView(R.id.error_message)
+    TextView errorTextView;
+    @BindView(R.id.error_view)
+    LinearLayout errorView;
+    @BindView(R.id.save)
+    Button save;
 
     private CompositeSubscription subscriptions;
     private OnFragmentInteractionListener listener;
@@ -75,42 +83,40 @@ public class AccountFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         prefUtils = PrefUtils.getInstance(getContext());
-        String token = prefUtils.get(KEY_AUTH_TOKEN, null);
-        if (token != null) {
-            fetchAccountInfo(token);
-        }
+        fetchAccountInfo();
     }
 
-    private void fetchAccountInfo(String authToken) {
-        Subscription subscription = oraService.viewProfile(authToken)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<AuthResponse>() {
-                    @Override
-                    public void onCompleted() {
+    private void fetchAccountInfo() {
+        showLoadingView();
 
-                    }
+        String token = prefUtils.get(KEY_AUTH_TOKEN, null);
+        if (token != null) {
+            Subscription subscription = oraService.viewProfile(token)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<AuthResponse>() {
+                        @Override
+                        public void onCompleted() {
 
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        listener.showMessage(infoFetchError);
-                        contentView.setVisibility(View.VISIBLE);
-                        progressView.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onNext(AuthResponse authResponse) {
-                        contentView.setVisibility(View.VISIBLE);
-                        progressView.setVisibility(View.GONE);
-
-                        if (authResponse.isSuccess()) {
-                            setUpViews(authResponse.getData());
-                        } else {
-                            listener.showMessage(infoFetchError);
                         }
-                    }
-                });
-        subscriptions.add(subscription);
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            showErrorView(infoFetchError);
+                        }
+
+                        @Override
+                        public void onNext(AuthResponse authResponse) {
+                            if (authResponse.isSuccess()) {
+                                setUpViews(authResponse.getData());
+                                showContentView();
+                            } else {
+                                showErrorView(infoFetchError);
+                            }
+                        }
+                    });
+            subscriptions.add(subscription);
+        }
     }
 
     private void setUpViews(AuthResponse.Data data) {
@@ -159,6 +165,30 @@ public class AccountFragment extends Fragment {
                     });
             subscriptions.add(subscription);
         }
+    }
+
+    @OnClick(R.id.retry)
+    public void onRetryButtonClick() {
+        fetchAccountInfo();
+    }
+
+    private void showLoadingView() {
+        contentView.setVisibility(View.GONE);
+        errorView.setVisibility(View.GONE);
+        progressView.setVisibility(View.VISIBLE);
+    }
+
+    private void showErrorView(String errorMessage) {
+        errorTextView.setText(errorMessage);
+        contentView.setVisibility(View.GONE);
+        progressView.setVisibility(View.GONE);
+        errorView.setVisibility(View.VISIBLE);
+    }
+
+    private void showContentView() {
+        progressView.setVisibility(View.GONE);
+        errorView.setVisibility(View.GONE);
+        contentView.setVisibility(View.VISIBLE);
     }
 
     @Override

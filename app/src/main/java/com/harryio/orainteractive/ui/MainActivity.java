@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     private ProgressDialog editProfileDialog, createChatDialog;
     private ViewPagerAdapter pagerAdapter;
     private Subscription subscription;
+    private boolean isChatListLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +72,12 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPageSelected(int position) {
-                if (position == 0) {
-                    animateInFab();
-                } else if (position == 1) {
-                    animateOutFab();
+                if (isChatListLoaded) {
+                    if (position == 0) {
+                        animateInFab();
+                    } else if (position == 1) {
+                        animateOutFab();
+                    }
                 }
             }
 
@@ -204,6 +207,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onChatsLoaded() {
+        isChatListLoaded = true;
         animateInFab();
     }
 

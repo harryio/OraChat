@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -34,6 +37,10 @@ public class ChatsFragment extends Fragment {
     RecyclerView recyclerView;
     @BindString(R.string.fetch_chat_list_error)
     String fetchChatListErrorMessage;
+    @BindView(R.id.error_message)
+    TextView errorTextView;
+    @BindView(R.id.error_view)
+    LinearLayout errorView;
 
     private ChatListAdapter adapter;
     private Subscription subscription;
@@ -69,6 +76,7 @@ public class ChatsFragment extends Fragment {
     }
 
     private void fetchChatList() {
+        showLoadingView();
         String token = PrefUtils.getInstance(getActivity()).get(KEY_AUTH_TOKEN, null);
 
         if (token != null) {
@@ -84,19 +92,18 @@ public class ChatsFragment extends Fragment {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            progressView.setVisibility(View.GONE);
-                            listener.showMessage(fetchChatListErrorMessage);
+                            showErrorView(fetchChatListErrorMessage);
                         }
 
                         @Override
                         public void onNext(ChatList chatList) {
-                            progressView.setVisibility(View.GONE);
                             if (chatList.isSuccess()) {
                                 adapter.swapData(chatList.getData());
                                 recyclerView.setVisibility(View.VISIBLE);
+                                showContentView();
                                 listener.onChatsLoaded();
                             } else {
-                                listener.showMessage(fetchChatListErrorMessage);
+                                showErrorView(fetchChatListErrorMessage);
                             }
                         }
                     });
@@ -112,6 +119,30 @@ public class ChatsFragment extends Fragment {
         data.setUser(chat.getUser());
 
         adapter.addItem(data);
+    }
+
+    private void showLoadingView() {
+        recyclerView.setVisibility(View.GONE);
+        errorView.setVisibility(View.GONE);
+        progressView.setVisibility(View.VISIBLE);
+    }
+
+    private void showErrorView(String errorMessage) {
+        errorTextView.setText(errorMessage);
+        recyclerView.setVisibility(View.GONE);
+        progressView.setVisibility(View.GONE);
+        errorView.setVisibility(View.VISIBLE);
+    }
+
+    private void showContentView() {
+        progressView.setVisibility(View.GONE);
+        errorView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.retry)
+    public void onClick() {
+        fetchChatList();
     }
 
     @Override
@@ -139,8 +170,6 @@ public class ChatsFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void showMessage(String message);
-
         void onChatsLoaded();
 
         void onItemClick(ChatList.Data chat);

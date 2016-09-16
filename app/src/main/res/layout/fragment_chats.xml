@@ -4,6 +4,9 @@
              android:layout_height="match_parent"
              android:orientation="vertical">
 
+    <include
+        layout="@layout/error_view"/>
+
     <ProgressBar
         android:id="@+id/progressView"
         android:layout_width="wrap_content"
@@ -15,4 +18,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"/>
+
 </FrameLayout>
