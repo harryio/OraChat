@@ -19,12 +19,12 @@ import com.harryio.orainteractive.R;
 import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
-import com.harryio.orainteractive.ui.account.AccountFragment;
 import com.harryio.orainteractive.ui.chat.Chat;
 import com.harryio.orainteractive.ui.chat.ChatList;
 import com.harryio.orainteractive.ui.chat.ChatListFragment;
 import com.harryio.orainteractive.ui.chat.CreateChatRequest;
 import com.harryio.orainteractive.ui.chat.MessageListActivity;
+import com.harryio.orainteractive.ui.profile.ProfileFragment;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -35,7 +35,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity
-        implements AccountFragment.OnFragmentInteractionListener,
+        implements ProfileFragment.OnFragmentInteractionListener,
         ChatListFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
     private static final int ANIM_DURATION = 300;

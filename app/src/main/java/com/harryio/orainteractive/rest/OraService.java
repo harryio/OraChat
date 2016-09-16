@@ -1,6 +1,5 @@
 package com.harryio.orainteractive.rest;
 
-import com.harryio.orainteractive.ui.account.EditProfileRequest;
 import com.harryio.orainteractive.ui.auth.AuthResponse;
 import com.harryio.orainteractive.ui.auth.login.LoginRequest;
 import com.harryio.orainteractive.ui.auth.register.RegisterRequest;
@@ -8,6 +7,7 @@ import com.harryio.orainteractive.ui.chat.Chat;
 import com.harryio.orainteractive.ui.chat.ChatList;
 import com.harryio.orainteractive.ui.chat.CreateChatRequest;
 import com.harryio.orainteractive.ui.chat.MessageList;
+import com.harryio.orainteractive.ui.profile.EditProfileRequest;
 
 import retrofit2.http.Body;
 import retrofit2.http.GET;

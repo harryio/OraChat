@@ -5,8 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
-import com.harryio.orainteractive.ui.account.AccountFragment;
 import com.harryio.orainteractive.ui.chat.ChatListFragment;
+import com.harryio.orainteractive.ui.profile.ProfileFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
                 return new ChatListFragment();
 
             case 1:
-                return new AccountFragment();
+                return new ProfileFragment();
         }
         return null;
     }

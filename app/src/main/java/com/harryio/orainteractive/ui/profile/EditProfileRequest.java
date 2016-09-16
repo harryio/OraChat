@@ -1,4 +1,4 @@
-package com.harryio.orainteractive.ui.account;
+package com.harryio.orainteractive.ui.profile;
 
 public class EditProfileRequest {
     String name;
