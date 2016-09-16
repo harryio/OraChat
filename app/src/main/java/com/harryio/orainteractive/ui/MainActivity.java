@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity
         implements ProfileFragment.OnFragmentInteractionListener,
         ChatListFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
-    private static final int ANIM_DURATION = 300;
+    private static final int ANIM_DURATION = 200;
 
     @BindView(R.id.viewPager)
     ViewPager viewPager;
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity
 
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
+        //Add page change listener on ViewPager so that we can hide/show FAB
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -76,7 +77,10 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPageSelected(int position) {
+                //hide/show FAB only if chat list is successfully fetched from the network
                 if (isChatListLoaded) {
+                    //Show FAB only on ChatListFragment which we know is at position 0 as there are
+                    // only two fragments
                     if (position == 0) {
                         animateInFab();
                     } else if (position == 1) {
@@ -92,9 +96,11 @@ public class MainActivity extends AppCompatActivity
         });
         tabLayout.setupWithViewPager(viewPager);
 
+        //Create dialog which is shown when user saves profile
         editProfileDialog = new ProgressDialog(this);
         editProfileDialog.setMessage(editProfileDialogMessage);
 
+        //Create dialog which is shown when a chat is being created
         createChatDialog = new ProgressDialog(this);
         createChatDialog.setMessage(createChatProgressMessage);
     }
@@ -151,15 +157,18 @@ public class MainActivity extends AppCompatActivity
 
     @OnClick(R.id.fab)
     public void onFabClick() {
+        //Get authorization token from SharedPreferences
         PrefUtils prefUtils = PrefUtils.getInstance(this);
         String token = prefUtils.get(PrefUtils.KEY_AUTH_TOKEN, null);
 
         if (token != null) {
             if (Utils.isNetworkAvailable(this)) {
+                //Show create chat dialog before making call to the network
                 createChatDialog.show();
 
+                //Make api call to create new chat
                 OraService oraService = OraServiceProvider.getInstance();
-                subscription = oraService.createChat(token, new CreateChatRequest("Harry"))
+                subscription = oraService.createChat(token, new CreateChatRequest("A Chat"))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Chat>() {
                             @Override
@@ -169,23 +178,30 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onError(Throwable e) {
                                 e.printStackTrace();
+                                //Dismiss create chat dialog
                                 if (createChatDialog.isShowing()) {
                                     createChatDialog.dismiss();
                                 }
+                                //Notify user that the call failed
                                 showMessage(createChatErrorMessage);
                             }
 
                             @Override
                             public void onNext(Chat chat) {
+                                //Dismiss create chat dialog
                                 if (createChatDialog.isShowing()) {
                                     createChatDialog.dismiss();
                                 }
                                 if (chat.isSuccess()) {
+                                    //If creating a new chat was successful, then convey this
+                                    // information to the ChatListFragment so that it can add
+                                    // newly created chat in the chat list
                                     Fragment fragment = pagerAdapter.getFragment(0);
                                     if (fragment != null && fragment instanceof ChatListFragment) {
                                         ((ChatListFragment) fragment).addNewChat(chat.getData());
                                     }
                                 } else {
+                                    //If creating a new chat failed then notify user
                                     showMessage(createChatErrorMessage);
                                 }
                             }
@@ -229,6 +245,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
 
+        //unsubscribe from observable to avoid memory leak
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }

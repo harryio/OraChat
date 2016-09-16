@@ -10,24 +10,8 @@ public class AuthResponse {
         return success;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
     public Data getData() {
         return data;
-    }
-
-    public void setData(Data data) {
-        this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "AuthResponse{" +
-                "success=" + success +
-                ", data=" + data +
-                '}';
     }
 
     public static class Data {
@@ -66,16 +50,6 @@ public class AuthResponse {
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "Data{" +
-                    "id=" + id +
-                    ", token='" + token + '\'' +
-                    ", email='" + email + '\'' +
-                    ", name='" + name + '\'' +
-                    '}';
         }
     }
 }

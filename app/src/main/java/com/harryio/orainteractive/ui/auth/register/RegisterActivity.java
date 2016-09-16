@@ -58,6 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
 
+        //Create dialog which is shown when making register api call
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(registerProgressMessage);
 
@@ -69,8 +70,10 @@ public class RegisterActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.register:
                 if (Utils.isNetworkAvailable(this)) {
+                    //Show register progress dialog before making api call
                     progressDialog.show();
 
+                    //Get user's credentials
                     String name = nameEdittext.getText().toString();
                     String email = emailEdittext.getText().toString();
                     String password = passwordEdittext.getText().toString();
@@ -78,48 +81,52 @@ public class RegisterActivity extends AppCompatActivity {
                     RegisterRequest registerRequest = new RegisterRequest(name, email,
                             password, confirm);
 
+                    //Make register api call
                     OraService oraService = OraServiceProvider.getInstance();
                     registerSubscription = oraService.register(registerRequest)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Subscriber<AuthResponse>() {
                                 @Override
                                 public void onCompleted() {
-                                    if (registerSubscription != null &&
-                                            !registerSubscription.isUnsubscribed()) {
-                                        registerSubscription.unsubscribe();
-                                    }
                                 }
 
                                 @Override
                                 public void onError(Throwable e) {
                                     e.printStackTrace();
+                                    //Dismiss register progress dialog
                                     if (progressDialog.isShowing()) {
                                         progressDialog.dismiss();
                                     }
 
+                                    //Notify user that the call failed
                                     Utils.showMessage(RegisterActivity.this, registerFailedMessage);
                                 }
 
                                 @Override
                                 public void onNext(AuthResponse authResponse) {
+                                    //Dismiss register progress dialog
                                     if (progressDialog.isShowing()) {
                                         progressDialog.dismiss();
                                     }
 
                                     if (authResponse.isSuccess()) {
-                                        onSuccessfullRegister(authResponse);
+                                        //User is successfully registered
+                                        onSuccessfulRegister(authResponse);
                                     } else {
+                                        //Notify user that the call failed
                                         Utils.showMessage(RegisterActivity.this, registerFailedMessage);
                                     }
                                 }
                             });
                 } else {
+                    //Notify user that there is no internet connection
                     Utils.showMessage(this, noConnectionMessage);
                 }
 
                 break;
 
             case R.id.login:
+                //Launch login screen
                 Intent intent = new Intent(this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -129,13 +136,18 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private void onSuccessfullRegister(AuthResponse authResponse) {
+    private void onSuccessfulRegister(AuthResponse authResponse) {
+        //Save auth-token
         prefUtils.put(KEY_AUTH_TOKEN, "Bearer " + authResponse.getData().getToken());
+        //Save user's id
         prefUtils.put(KEY_USER_ID, authResponse.getData().getId());
+        //Set user's status as logged in
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
+        //Notify user that new account is successfully created
         Utils.showMessage(RegisterActivity.this, registerSuccessfulMessage);
 
+        //Close RegisterActivity and launch MainActivity
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
@@ -146,6 +158,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        //unsubscribe from observable to avoud memory leaks
         if (registerSubscription != null && !registerSubscription.isUnsubscribed()) {
             registerSubscription.unsubscribe();
         }

@@ -12,6 +12,9 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.schedulers.Schedulers;
 
+/**
+ * Helper class for getting {@link OraService} instance
+ */
 public class OraServiceProvider {
     private static final String BASE_URL = "http://private-d9e5b-oracodechallenge.apiary-mock.com/";
 
@@ -20,6 +23,12 @@ public class OraServiceProvider {
     private OraServiceProvider() {
     }
 
+    //As the Retrofit instance and the generated instance of the OraService are extremely expensive objects,
+    //we will use them as Singletons so as not to create unnecessary objects
+
+    /**
+     * Provide single instance of {@link OraService}
+     */
     public static OraService getInstance() {
         if (instance == null) {
             OkHttpClient client = new OkHttpClient.Builder()

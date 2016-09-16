@@ -18,10 +18,13 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-
+        //Show splash screen for SPLASH_DISPLAY_DURATION
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                //Decide which activity is to be launched depending on the logged in status of the user.
+                //If user is not logged in then launch LoginActivity so that the user can login/register.
+                //Otherwise if the user is logged in direct user to the MainActivity
                 boolean isLoggedIn = PrefUtils.getInstance(SplashActivity.this)
                         .get(PrefUtils.KEY_IS_LOGGED_IN, false);
                 Class toBeLaunchedActivity = isLoggedIn ? MainActivity.class : LoginActivity.class;

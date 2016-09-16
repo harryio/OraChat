@@ -65,6 +65,9 @@ public class ChatListFragment extends Fragment {
         fetchChatList();
     }
 
+    /*
+    Sets basic settings on recycler view
+     */
     private void setUpRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -78,12 +81,17 @@ public class ChatListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
+    /*
+    Fetch list of chats from the network
+     */
     private void fetchChatList() {
         if (Utils.isNetworkAvailable(getActivity())) {
+            //Show loading view before making network call to fetch chat list
             showLoadingView();
             String token = PrefUtils.getInstance(getActivity()).get(KEY_AUTH_TOKEN, null);
 
             if (token != null) {
+                //Make network call
                 OraService oraService = OraServiceProvider.getInstance();
                 subscription = oraService.getChatList(token, "Chat", String.valueOf(1), 20)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -95,26 +103,38 @@ public class ChatListFragment extends Fragment {
                             @Override
                             public void onError(Throwable e) {
                                 e.printStackTrace();
+                                //Call failed
                                 showErrorView(fetchChatListErrorMessage);
                             }
 
                             @Override
                             public void onNext(ChatList chatList) {
                                 if (chatList.isSuccess()) {
+                                    // Chat list was successfully fetched from the network.
+                                    // Update chat list with data
                                     adapter.swapData(chatList.getData());
                                     showContentView();
+                                    //Notify activity that the chat list was successfully fetched
+                                    // so that the FAB can be shown
                                     listener.onChatsLoaded();
                                 } else {
+                                    //Failed to fetch chat list from the network
                                     showErrorView(fetchChatListErrorMessage);
                                 }
                             }
                         });
             }
         } else {
+            //Notify user that there is no internet connection
             showErrorView(noConnectionMessage);
         }
     }
 
+    /**
+     * Adds new chat to the chat list
+     *
+     * @param chat chat to be added
+     */
     public void addNewChat(Chat.Data chat) {
         ChatList.Data data = new ChatList.Data();
         data.setCreated(chat.getCreated());
@@ -123,16 +143,24 @@ public class ChatListFragment extends Fragment {
         data.setUser_id(chat.getUser_id());
         data.setUser(chat.getUser());
 
+        //Notify adapter that a new item is inserted
         adapter.addItem(data);
+        //Scroll recycler view to the top
         recyclerView.scrollToPosition(0);
     }
 
+    /*
+    Shows the loading view and hides error and content views. This is only shown before making network call
+     */
     private void showLoadingView() {
         recyclerView.setVisibility(View.GONE);
         errorView.setVisibility(View.GONE);
         progressView.setVisibility(View.VISIBLE);
     }
 
+    /*
+    Shows the error view and hides loading and content views. This is shown in case there was a network error
+     */
     private void showErrorView(String errorMessage) {
         errorTextView.setText(errorMessage);
         recyclerView.setVisibility(View.GONE);
@@ -140,12 +168,19 @@ public class ChatListFragment extends Fragment {
         errorView.setVisibility(View.VISIBLE);
     }
 
+    /*
+    Shows content view i.e. chat list and hides error and loading views. This is only shown when the chat list was
+    successfully fetched from the network
+     */
     private void showContentView() {
         progressView.setVisibility(View.GONE);
         errorView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
     }
 
+    /*
+    Retry fetch chat list api call if there was an error
+     */
     @OnClick(R.id.retry)
     public void onClick() {
         fetchChatList();
@@ -170,16 +205,28 @@ public class ChatListFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
+        //unsubscribe from observable to avoid memory leak
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }
     }
 
     public interface OnFragmentInteractionListener {
+        /**
+         * Display a short {@link android.widget.Toast} message
+         * @param message message to be shown
+         */
         void showMessage(String message);
 
+        /**
+         * Notifies parent activity that chats were successfully loaded
+         */
         void onChatsLoaded();
 
+        /**
+         * Launches {@link MessageListActivity} which displays messages from a chat
+         * @param chat chat related to the clicked item
+         */
         void onItemClick(ChatList.Data chat);
     }
 }
