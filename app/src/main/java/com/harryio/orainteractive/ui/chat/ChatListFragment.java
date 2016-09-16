@@ -118,6 +118,7 @@ public class ChatListFragment extends Fragment {
         data.setUser(chat.getUser());
 
         adapter.addItem(data);
+        recyclerView.scrollToPosition(0);
     }
 
     private void showLoadingView() {

@@ -49,11 +49,13 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
             messageLayoutParams.gravity = Gravity.END;
             holder.messageTextView.setLayoutParams(messageLayoutParams);
             holder.messageTextView.setBackgroundColor(ContextCompat.getColor(context, R.color.grey_400));
+            holder.messageTextView.setTextColor(ContextCompat.getColor(context, R.color.primary_text_color));
 
             fromLayoutParams.gravity = Gravity.END;
             holder.fromTextView.setLayoutParams(fromLayoutParams);
         } else {
             messageLayoutParams.setMargins(0, 0, 100, 0);
+            messageLayoutParams.gravity = Gravity.START;
             holder.messageTextView.setLayoutParams(messageLayoutParams);
             holder.messageTextView.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
             holder.messageTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
