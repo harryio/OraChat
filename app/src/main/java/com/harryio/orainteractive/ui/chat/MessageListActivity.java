@@ -1,5 +1,6 @@
 package com.harryio.orainteractive.ui.chat;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 
@@ -29,6 +31,7 @@ import butterknife.OnClick;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.harryio.orainteractive.PrefUtils.KEY_AUTH_TOKEN;
 import static com.harryio.orainteractive.PrefUtils.KEY_USER_ID;
@@ -52,13 +55,19 @@ public class MessageListActivity extends AppCompatActivity {
     FloatingActionButton fab;
     @BindString(R.string.fetch_message_list_error)
     String fetchMessageListError;
+    @BindString(R.string.create_message_error)
+    String createMessageError;
+    @BindString(R.string.create_message_progress)
+    String createMessageProgress;
 
     private int chatId, userId;
     private String chatName;
 
     private PrefUtils prefUtils;
-    private Subscription subscription;
+    private CompositeSubscription subscriptions;
     private MessageListAdapter adapter;
+    private ProgressDialog createMessageDialog;
+    private OraService oraService;
 
     public static Intent getCallingIntent(Context context, int chatId, String chatName) {
         Intent intent = new Intent(context, MessageListActivity.class);
@@ -78,6 +87,12 @@ public class MessageListActivity extends AppCompatActivity {
         prefUtils = PrefUtils.getInstance(this);
         userId = prefUtils.get(KEY_USER_ID, -1);
 
+        createMessageDialog = new ProgressDialog(this);
+        createMessageDialog.setMessage(createMessageProgress);
+
+        subscriptions = new CompositeSubscription();
+        oraService = OraServiceProvider.getInstance();
+
         setUpToolbar();
         setUpRecyclerView();
         fetchMessageList();
@@ -85,7 +100,8 @@ public class MessageListActivity extends AppCompatActivity {
 
     private void setUpRecyclerView() {
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         adapter = new MessageListAdapter(this, new ArrayList<Message>(0));
         adapter.setUserId(userId);
         recyclerView.setAdapter(adapter);
@@ -106,8 +122,7 @@ public class MessageListActivity extends AppCompatActivity {
         String token = prefUtils.get(KEY_AUTH_TOKEN, null);
 
         if (token != null && chatId != -1 && userId != -1) {
-            OraService oraService = OraServiceProvider.getInstance();
-            subscription = oraService.getMessageList(token, String.valueOf(chatId), String.valueOf(1), 20)
+            Subscription subscription = oraService.getMessageList(token, String.valueOf(chatId), String.valueOf(1), 20)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Subscriber<MessageList>() {
                         @Override
@@ -135,6 +150,8 @@ public class MessageListActivity extends AppCompatActivity {
                             }
                         }
                     });
+
+            subscriptions.add(subscription);
         }
     }
 
@@ -157,6 +174,46 @@ public class MessageListActivity extends AppCompatActivity {
         recyclerView.setVisibility(View.VISIBLE);
     }
 
+    private void createMessage() {
+        String token = prefUtils.get(KEY_AUTH_TOKEN, null);
+        if (token != null) {
+            createMessageDialog.show();
+            Subscription subscription = oraService.createMessage(token, String.valueOf(chatId),
+                    new CreateMessageRequest("Hey there!"))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<CreateMessageResponse>() {
+                        @Override
+                        public void onCompleted() {
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            if (createMessageDialog.isShowing()) {
+                                createMessageDialog.dismiss();
+                            }
+                            Utils.showMessage(MessageListActivity.this, createMessageError);
+                        }
+
+                        @Override
+                        public void onNext(CreateMessageResponse response) {
+                            if (createMessageDialog.isShowing()) {
+                                createMessageDialog.dismiss();
+                            }
+
+                            if (response.isSuccess()) {
+                                adapter.addMessage(response.getData());
+                                recyclerView.scrollToPosition(adapter.getMessages().size() - 1);
+                            } else {
+                                Utils.showMessage(MessageListActivity.this, createMessageError);
+                            }
+                        }
+                    });
+
+            subscriptions.add(subscription);
+        }
+
+    }
+
     @OnClick({R.id.retry, R.id.fab})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -165,6 +222,7 @@ public class MessageListActivity extends AppCompatActivity {
                 break;
 
             case R.id.fab:
+                createMessage();
                 break;
         }
     }
@@ -172,8 +230,6 @@ public class MessageListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (subscription != null && !subscription.isUnsubscribed()) {
-            subscription.unsubscribe();
-        }
+        subscriptions.unsubscribe();
     }
 }

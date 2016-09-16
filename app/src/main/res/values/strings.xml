@@ -36,4 +36,6 @@
     <string name="create_chat_error">Failed to create new chat</string>
     <string name="create_chat_progress">Creating new chat…</string>
     <string name="fetch_message_list_error">Failed to fetch message list</string>
+    <string name="create_message_error">Failed to create message</string>
+    <string name="create_message_progress">Creating message…</string>
 </resources>

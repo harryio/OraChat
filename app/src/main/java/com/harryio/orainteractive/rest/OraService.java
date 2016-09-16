@@ -6,6 +6,8 @@ import com.harryio.orainteractive.ui.auth.register.RegisterRequest;
 import com.harryio.orainteractive.ui.chat.Chat;
 import com.harryio.orainteractive.ui.chat.ChatList;
 import com.harryio.orainteractive.ui.chat.CreateChatRequest;
+import com.harryio.orainteractive.ui.chat.CreateMessageRequest;
+import com.harryio.orainteractive.ui.chat.CreateMessageResponse;
 import com.harryio.orainteractive.ui.chat.MessageList;
 import com.harryio.orainteractive.ui.profile.EditProfileRequest;
 
@@ -45,4 +47,8 @@ public interface OraService {
     Observable<MessageList> getMessageList(@Header("Authorization") String authorization,
                                            @Path("chat_id") String chatId, @Query("page") String page,
                                            @Query("limit") Number limit);
+
+    @POST("chats/{chat_id}/messages")
+    Observable<CreateMessageResponse> createMessage(@Header("Authorization") String authorization,
+                                                    @Path("chat_id") String chatId, @Body CreateMessageRequest request);
 }

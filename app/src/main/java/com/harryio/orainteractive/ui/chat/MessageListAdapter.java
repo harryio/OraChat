@@ -84,6 +84,10 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         notifyItemInserted(messages.size() - 1);
     }
 
+    public List<Message> getMessages() {
+        return messages;
+    }
+
     static class MessageHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.message)
         TextView messageTextView;
