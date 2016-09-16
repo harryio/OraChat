@@ -44,6 +44,8 @@ public class RegisterActivity extends AppCompatActivity {
     String registerFailedMessage;
     @BindString(R.string.register_progress_message)
     String registerProgressMessage;
+    @BindString(R.string.error_no_internet_connection)
+    String noConnectionMessage;
 
     private ProgressDialog progressDialog;
 
@@ -66,50 +68,54 @@ public class RegisterActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.register:
-                progressDialog.show();
+                if (Utils.isNetworkAvailable(this)) {
+                    progressDialog.show();
 
-                String name = nameEdittext.getText().toString();
-                String email = emailEdittext.getText().toString();
-                String password = passwordEdittext.getText().toString();
-                String confirm = confirmEdittext.getText().toString();
-                RegisterRequest registerRequest = new RegisterRequest(name, email,
-                        password, confirm);
+                    String name = nameEdittext.getText().toString();
+                    String email = emailEdittext.getText().toString();
+                    String password = passwordEdittext.getText().toString();
+                    String confirm = confirmEdittext.getText().toString();
+                    RegisterRequest registerRequest = new RegisterRequest(name, email,
+                            password, confirm);
 
-                OraService oraService = OraServiceProvider.getInstance();
-                registerSubscription = oraService.register(registerRequest)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<AuthResponse>() {
-                            @Override
-                            public void onCompleted() {
-                                if (registerSubscription != null &&
-                                        !registerSubscription.isUnsubscribed()) {
-                                    registerSubscription.unsubscribe();
-                                }
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                e.printStackTrace();
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.dismiss();
+                    OraService oraService = OraServiceProvider.getInstance();
+                    registerSubscription = oraService.register(registerRequest)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Subscriber<AuthResponse>() {
+                                @Override
+                                public void onCompleted() {
+                                    if (registerSubscription != null &&
+                                            !registerSubscription.isUnsubscribed()) {
+                                        registerSubscription.unsubscribe();
+                                    }
                                 }
 
-                                Utils.showMessage(RegisterActivity.this, registerFailedMessage);
-                            }
+                                @Override
+                                public void onError(Throwable e) {
+                                    e.printStackTrace();
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                    }
 
-                            @Override
-                            public void onNext(AuthResponse authResponse) {
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.dismiss();
-                                }
-
-                                if (authResponse.isSuccess()) {
-                                    onSuccessfullRegister(authResponse);
-                                } else {
                                     Utils.showMessage(RegisterActivity.this, registerFailedMessage);
                                 }
-                            }
-                        });
+
+                                @Override
+                                public void onNext(AuthResponse authResponse) {
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                    }
+
+                                    if (authResponse.isSuccess()) {
+                                        onSuccessfullRegister(authResponse);
+                                    } else {
+                                        Utils.showMessage(RegisterActivity.this, registerFailedMessage);
+                                    }
+                                }
+                            });
+                } else {
+                    Utils.showMessage(this, noConnectionMessage);
+                }
 
                 break;
 

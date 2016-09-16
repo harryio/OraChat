@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity
     String createChatErrorMessage;
     @BindString(R.string.create_chat_progress)
     String createChatProgressMessage;
+    @BindString(R.string.error_no_internet_connection)
+    String noConnectionMessage;
 
     private ProgressDialog editProfileDialog, createChatDialog;
     private ViewPagerAdapter pagerAdapter;
@@ -153,40 +155,44 @@ public class MainActivity extends AppCompatActivity
         String token = prefUtils.get(PrefUtils.KEY_AUTH_TOKEN, null);
 
         if (token != null) {
-            createChatDialog.show();
+            if (Utils.isNetworkAvailable(this)) {
+                createChatDialog.show();
 
-            OraService oraService = OraServiceProvider.getInstance();
-            subscription = oraService.createChat(token, new CreateChatRequest("Harry"))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<Chat>() {
-                        @Override
-                        public void onCompleted() {
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            if (createChatDialog.isShowing()) {
-                                createChatDialog.dismiss();
+                OraService oraService = OraServiceProvider.getInstance();
+                subscription = oraService.createChat(token, new CreateChatRequest("Harry"))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<Chat>() {
+                            @Override
+                            public void onCompleted() {
                             }
-                            showMessage(createChatErrorMessage);
-                        }
 
-                        @Override
-                        public void onNext(Chat chat) {
-                            if (createChatDialog.isShowing()) {
-                                createChatDialog.dismiss();
-                            }
-                            if (chat.isSuccess()) {
-                                Fragment fragment = pagerAdapter.getFragment(0);
-                                if (fragment != null && fragment instanceof ChatListFragment) {
-                                    ((ChatListFragment) fragment).addNewChat(chat.getData());
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                if (createChatDialog.isShowing()) {
+                                    createChatDialog.dismiss();
                                 }
-                            } else {
                                 showMessage(createChatErrorMessage);
                             }
-                        }
-                    });
+
+                            @Override
+                            public void onNext(Chat chat) {
+                                if (createChatDialog.isShowing()) {
+                                    createChatDialog.dismiss();
+                                }
+                                if (chat.isSuccess()) {
+                                    Fragment fragment = pagerAdapter.getFragment(0);
+                                    if (fragment != null && fragment instanceof ChatListFragment) {
+                                        ((ChatListFragment) fragment).addNewChat(chat.getData());
+                                    }
+                                } else {
+                                    showMessage(createChatErrorMessage);
+                                }
+                            }
+                        });
+            } else {
+                showMessage(noConnectionMessage);
+            }
         }
     }
 

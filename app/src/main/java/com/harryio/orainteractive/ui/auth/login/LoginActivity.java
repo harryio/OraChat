@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity {
     String loginErrorMessage;
     @BindString(R.string.login_progress_message)
     String loginProgressMessage;
+    @BindString(R.string.error_no_internet_connection)
+    String noConnectionError;
 
     private Subscription loginSubscription;
     private ProgressDialog progressDialog;
@@ -65,46 +67,50 @@ public class LoginActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login:
-                progressDialog.show();
+                if (Utils.isNetworkAvailable(this)) {
+                    progressDialog.show();
 
-                String email = emailEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                    String email = emailEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
 
-                OraService service = OraServiceProvider.getInstance();
-                LoginRequest loginRequest = new LoginRequest(email, password);
-                loginSubscription = service.login(loginRequest)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<AuthResponse>() {
-                            @Override
-                            public void onCompleted() {
-                                if (loginSubscription != null && !loginSubscription.isUnsubscribed()) {
-                                    loginSubscription.unsubscribe();
-                                }
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                e.printStackTrace();
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.dismiss();
+                    OraService service = OraServiceProvider.getInstance();
+                    LoginRequest loginRequest = new LoginRequest(email, password);
+                    loginSubscription = service.login(loginRequest)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Subscriber<AuthResponse>() {
+                                @Override
+                                public void onCompleted() {
+                                    if (loginSubscription != null && !loginSubscription.isUnsubscribed()) {
+                                        loginSubscription.unsubscribe();
+                                    }
                                 }
 
-                                showMessage(LoginActivity.this, loginErrorMessage);
-                            }
+                                @Override
+                                public void onError(Throwable e) {
+                                    e.printStackTrace();
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                    }
 
-                            @Override
-                            public void onNext(AuthResponse authResponse) {
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.dismiss();
-                                }
-
-                                if (authResponse.isSuccess()) {
-                                    onSuccessfulLogin(authResponse);
-                                } else {
                                     showMessage(LoginActivity.this, loginErrorMessage);
                                 }
-                            }
-                        });
+
+                                @Override
+                                public void onNext(AuthResponse authResponse) {
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                    }
+
+                                    if (authResponse.isSuccess()) {
+                                        onSuccessfulLogin(authResponse);
+                                    } else {
+                                        showMessage(LoginActivity.this, loginErrorMessage);
+                                    }
+                                }
+                            });
+                } else {
+                    showMessage(this, noConnectionError);
+                }
 
                 break;
 

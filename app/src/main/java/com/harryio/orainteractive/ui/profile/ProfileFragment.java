@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 import com.harryio.orainteractive.ui.auth.AuthResponse;
@@ -45,18 +46,20 @@ public class ProfileFragment extends Fragment {
     TextInputEditText confirmEditText;
     @BindView(R.id.contentView)
     LinearLayout contentView;
-    @BindString(R.string.fetch_user_details_error)
-    String infoFetchError;
-    @BindString(R.string.edit_user_details_successful)
-    String profileEditSuccessfulMessage;
-    @BindString(R.string.edit_user_details_error)
-    String profileEditFailedMessage;
     @BindView(R.id.error_message)
     TextView errorTextView;
     @BindView(R.id.error_view)
     LinearLayout errorView;
     @BindView(R.id.save)
     Button save;
+    @BindString(R.string.fetch_user_details_error)
+    String infoFetchError;
+    @BindString(R.string.edit_user_details_successful)
+    String profileEditSuccessfulMessage;
+    @BindString(R.string.edit_user_details_error)
+    String profileEditFailedMessage;
+    @BindString(R.string.error_no_internet_connection)
+    String noConnectionMessage;
 
     private CompositeSubscription subscriptions;
     private OnFragmentInteractionListener listener;
@@ -87,35 +90,39 @@ public class ProfileFragment extends Fragment {
     }
 
     private void fetchAccountInfo() {
-        showLoadingView();
+        if (Utils.isNetworkAvailable(getActivity())) {
+            showLoadingView();
 
-        String token = prefUtils.get(KEY_AUTH_TOKEN, null);
-        if (token != null) {
-            Subscription subscription = oraService.viewProfile(token)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<AuthResponse>() {
-                        @Override
-                        public void onCompleted() {
+            String token = prefUtils.get(KEY_AUTH_TOKEN, null);
+            if (token != null) {
+                Subscription subscription = oraService.viewProfile(token)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<AuthResponse>() {
+                            @Override
+                            public void onCompleted() {
 
-                        }
+                            }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            showErrorView(infoFetchError);
-                        }
-
-                        @Override
-                        public void onNext(AuthResponse authResponse) {
-                            if (authResponse.isSuccess()) {
-                                setUpViews(authResponse.getData());
-                                showContentView();
-                            } else {
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
                                 showErrorView(infoFetchError);
                             }
-                        }
-                    });
-            subscriptions.add(subscription);
+
+                            @Override
+                            public void onNext(AuthResponse authResponse) {
+                                if (authResponse.isSuccess()) {
+                                    setUpViews(authResponse.getData());
+                                    showContentView();
+                                } else {
+                                    showErrorView(infoFetchError);
+                                }
+                            }
+                        });
+                subscriptions.add(subscription);
+            }
+        } else {
+            showErrorView(noConnectionMessage);
         }
     }
 
@@ -126,44 +133,48 @@ public class ProfileFragment extends Fragment {
 
     @OnClick(R.id.save)
     public void onClick() {
-        listener.showProfileEditDialog();
+        if (Utils.isNetworkAvailable(getActivity())) {
+            listener.showProfileEditDialog();
 
-        String name = nameEditText.getText().toString();
-        String email = emailEditText.getText().toString();
-        String password = passwordEditText.getText().toString();
-        String confirm = confirmEditText.getText().toString();
+            String name = nameEditText.getText().toString();
+            String email = emailEditText.getText().toString();
+            String password = passwordEditText.getText().toString();
+            String confirm = confirmEditText.getText().toString();
 
-        EditProfileRequest request = new EditProfileRequest(name, email, password, confirm);
-        String token = prefUtils.get(KEY_AUTH_TOKEN, null);
-        if (token != null) {
-            Subscription subscription = oraService.editProfile(token, request)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<AuthResponse>() {
-                        @Override
-                        public void onCompleted() {
+            EditProfileRequest request = new EditProfileRequest(name, email, password, confirm);
+            String token = prefUtils.get(KEY_AUTH_TOKEN, null);
+            if (token != null) {
+                Subscription subscription = oraService.editProfile(token, request)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<AuthResponse>() {
+                            @Override
+                            public void onCompleted() {
 
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            listener.showMessage(profileEditFailedMessage);
-                            listener.hideProfileEditDialog();
-                        }
-
-                        @Override
-                        public void onNext(AuthResponse authResponse) {
-                            listener.hideProfileEditDialog();
-
-                            if (authResponse.isSuccess()) {
-                                listener.showMessage(profileEditSuccessfulMessage);
-                                setUpViews(authResponse.getData());
-                            } else {
-                                listener.showMessage(profileEditFailedMessage);
                             }
-                        }
-                    });
-            subscriptions.add(subscription);
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                listener.showMessage(profileEditFailedMessage);
+                                listener.hideProfileEditDialog();
+                            }
+
+                            @Override
+                            public void onNext(AuthResponse authResponse) {
+                                listener.hideProfileEditDialog();
+
+                                if (authResponse.isSuccess()) {
+                                    listener.showMessage(profileEditSuccessfulMessage);
+                                    setUpViews(authResponse.getData());
+                                } else {
+                                    listener.showMessage(profileEditFailedMessage);
+                                }
+                            }
+                        });
+                subscriptions.add(subscription);
+            }
+        } else {
+            listener.showMessage(noConnectionMessage);
         }
     }
 

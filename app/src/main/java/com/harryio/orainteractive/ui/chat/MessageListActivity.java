@@ -59,6 +59,8 @@ public class MessageListActivity extends AppCompatActivity {
     String createMessageError;
     @BindString(R.string.create_message_progress)
     String createMessageProgress;
+    @BindString(R.string.error_no_internet_connection)
+    String noConnectionMessage;
 
     private int chatId, userId;
     private String chatName;
@@ -118,40 +120,44 @@ public class MessageListActivity extends AppCompatActivity {
     }
 
     private void fetchMessageList() {
-        showLoadingView();
-        String token = prefUtils.get(KEY_AUTH_TOKEN, null);
+        if (Utils.isNetworkAvailable(this)) {
+            showLoadingView();
+            String token = prefUtils.get(KEY_AUTH_TOKEN, null);
 
-        if (token != null && chatId != -1 && userId != -1) {
-            Subscription subscription = oraService.getMessageList(token, String.valueOf(chatId), String.valueOf(1), 20)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<MessageList>() {
-                        @Override
-                        public void onCompleted() {
-                        }
+            if (token != null && chatId != -1 && userId != -1) {
+                Subscription subscription = oraService.getMessageList(token, String.valueOf(chatId), String.valueOf(1), 20)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<MessageList>() {
+                            @Override
+                            public void onCompleted() {
+                            }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            showErrorView(fetchMessageListError);
-                        }
-
-                        @Override
-                        public void onNext(MessageList messageList) {
-                            if (messageList.isSuccess()) {
-                                List<Message> messages = messageList.getMessages();
-                                if (messages == null) {
-                                    Log.e(TAG, "Messages are null");
-                                } else {
-                                    adapter.swapData(messageList.getMessages());
-                                    showContentView();
-                                }
-                            } else {
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
                                 showErrorView(fetchMessageListError);
                             }
-                        }
-                    });
 
-            subscriptions.add(subscription);
+                            @Override
+                            public void onNext(MessageList messageList) {
+                                if (messageList.isSuccess()) {
+                                    List<Message> messages = messageList.getMessages();
+                                    if (messages == null) {
+                                        Log.e(TAG, "Messages are null");
+                                    } else {
+                                        adapter.swapData(messageList.getMessages());
+                                        showContentView();
+                                    }
+                                } else {
+                                    showErrorView(fetchMessageListError);
+                                }
+                            }
+                        });
+
+                subscriptions.add(subscription);
+            }
+        } else {
+            showErrorView(noConnectionMessage);
         }
     }
 
@@ -177,41 +183,44 @@ public class MessageListActivity extends AppCompatActivity {
     private void createMessage() {
         String token = prefUtils.get(KEY_AUTH_TOKEN, null);
         if (token != null) {
-            createMessageDialog.show();
-            Subscription subscription = oraService.createMessage(token, String.valueOf(chatId),
-                    new CreateMessageRequest("Hey there!"))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<CreateMessageResponse>() {
-                        @Override
-                        public void onCompleted() {
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            if (createMessageDialog.isShowing()) {
-                                createMessageDialog.dismiss();
-                            }
-                            Utils.showMessage(MessageListActivity.this, createMessageError);
-                        }
-
-                        @Override
-                        public void onNext(CreateMessageResponse response) {
-                            if (createMessageDialog.isShowing()) {
-                                createMessageDialog.dismiss();
+            if (Utils.isNetworkAvailable(this)) {
+                createMessageDialog.show();
+                Subscription subscription = oraService.createMessage(token, String.valueOf(chatId),
+                        new CreateMessageRequest("Hey there!"))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<CreateMessageResponse>() {
+                            @Override
+                            public void onCompleted() {
                             }
 
-                            if (response.isSuccess()) {
-                                adapter.addMessage(response.getData());
-                                recyclerView.scrollToPosition(adapter.getMessages().size() - 1);
-                            } else {
+                            @Override
+                            public void onError(Throwable e) {
+                                if (createMessageDialog.isShowing()) {
+                                    createMessageDialog.dismiss();
+                                }
                                 Utils.showMessage(MessageListActivity.this, createMessageError);
                             }
-                        }
-                    });
 
-            subscriptions.add(subscription);
+                            @Override
+                            public void onNext(CreateMessageResponse response) {
+                                if (createMessageDialog.isShowing()) {
+                                    createMessageDialog.dismiss();
+                                }
+
+                                if (response.isSuccess()) {
+                                    adapter.addMessage(response.getData());
+                                    recyclerView.scrollToPosition(adapter.getMessages().size() - 1);
+                                } else {
+                                    Utils.showMessage(MessageListActivity.this, createMessageError);
+                                }
+                            }
+                        });
+
+                subscriptions.add(subscription);
+            } else {
+                Utils.showMessage(this, noConnectionMessage);
+            }
         }
-
     }
 
     @OnClick({R.id.retry, R.id.fab})

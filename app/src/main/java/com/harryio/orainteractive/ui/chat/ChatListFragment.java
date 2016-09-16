@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
+import com.harryio.orainteractive.Utils;
 import com.harryio.orainteractive.rest.OraService;
 import com.harryio.orainteractive.rest.OraServiceProvider;
 
@@ -41,6 +42,8 @@ public class ChatListFragment extends Fragment {
     TextView errorTextView;
     @BindView(R.id.error_view)
     LinearLayout errorView;
+    @BindString(R.string.error_no_internet_connection)
+    String noConnectionMessage;
 
     private ChatListAdapter adapter;
     private Subscription subscription;
@@ -76,36 +79,39 @@ public class ChatListFragment extends Fragment {
     }
 
     private void fetchChatList() {
-        showLoadingView();
-        String token = PrefUtils.getInstance(getActivity()).get(KEY_AUTH_TOKEN, null);
+        if (Utils.isNetworkAvailable(getActivity())) {
+            showLoadingView();
+            String token = PrefUtils.getInstance(getActivity()).get(KEY_AUTH_TOKEN, null);
 
-        if (token != null) {
-            OraService oraService = OraServiceProvider.getInstance();
-            subscription = oraService.getChatList(token, "Chat", String.valueOf(1), 20)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<ChatList>() {
-                        @Override
-                        public void onCompleted() {
+            if (token != null) {
+                OraService oraService = OraServiceProvider.getInstance();
+                subscription = oraService.getChatList(token, "Chat", String.valueOf(1), 20)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<ChatList>() {
+                            @Override
+                            public void onCompleted() {
+                            }
 
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            showErrorView(fetchChatListErrorMessage);
-                        }
-
-                        @Override
-                        public void onNext(ChatList chatList) {
-                            if (chatList.isSuccess()) {
-                                adapter.swapData(chatList.getData());
-                                showContentView();
-                                listener.onChatsLoaded();
-                            } else {
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
                                 showErrorView(fetchChatListErrorMessage);
                             }
-                        }
-                    });
+
+                            @Override
+                            public void onNext(ChatList chatList) {
+                                if (chatList.isSuccess()) {
+                                    adapter.swapData(chatList.getData());
+                                    showContentView();
+                                    listener.onChatsLoaded();
+                                } else {
+                                    showErrorView(fetchChatListErrorMessage);
+                                }
+                            }
+                        });
+            }
+        } else {
+            showErrorView(noConnectionMessage);
         }
     }
 
@@ -170,6 +176,8 @@ public class ChatListFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
+        void showMessage(String message);
+
         void onChatsLoaded();
 
         void onItemClick(ChatList.Data chat);
