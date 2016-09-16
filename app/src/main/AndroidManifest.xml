@@ -30,6 +30,8 @@
             android:name=".ui.auth.register.RegisterActivity"
             android:windowSoftInputMode="stateVisible">
         </activity>
+        <activity android:name=".ui.chat.MessageListActivity">
+        </activity>
     </application>
 
 </manifest>

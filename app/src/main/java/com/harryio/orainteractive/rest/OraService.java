@@ -7,12 +7,14 @@ import com.harryio.orainteractive.ui.auth.register.RegisterRequest;
 import com.harryio.orainteractive.ui.chat.Chat;
 import com.harryio.orainteractive.ui.chat.ChatList;
 import com.harryio.orainteractive.ui.chat.CreateChatRequest;
+import com.harryio.orainteractive.ui.chat.MessageList;
 
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
 
@@ -38,4 +40,9 @@ public interface OraService {
     @POST("chats")
     Observable<Chat> createChat(@Header("Authorization") String authorization,
                                 @Body CreateChatRequest request);
+
+    @GET("chats/{chat_id}/messages")
+    Observable<MessageList> getMessageList(@Header("Authorization") String authorization,
+                                           @Path("chat_id") String chatId, @Query("page") String page,
+                                           @Query("limit") Number limit);
 }

@@ -1,6 +1,7 @@
 package com.harryio.orainteractive.ui;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -21,8 +22,9 @@ import com.harryio.orainteractive.rest.OraServiceProvider;
 import com.harryio.orainteractive.ui.account.AccountFragment;
 import com.harryio.orainteractive.ui.chat.Chat;
 import com.harryio.orainteractive.ui.chat.ChatList;
-import com.harryio.orainteractive.ui.chat.ChatsFragment;
+import com.harryio.orainteractive.ui.chat.ChatListFragment;
 import com.harryio.orainteractive.ui.chat.CreateChatRequest;
+import com.harryio.orainteractive.ui.chat.MessageListActivity;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -34,7 +36,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity
         implements AccountFragment.OnFragmentInteractionListener,
-        ChatsFragment.OnFragmentInteractionListener {
+        ChatListFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
     private static final int ANIM_DURATION = 300;
 
@@ -177,8 +179,8 @@ public class MainActivity extends AppCompatActivity
                             }
                             if (chat.isSuccess()) {
                                 Fragment fragment = pagerAdapter.getFragment(0);
-                                if (fragment != null && fragment instanceof ChatsFragment) {
-                                    ((ChatsFragment) fragment).addNewChat(chat.getData());
+                                if (fragment != null && fragment instanceof ChatListFragment) {
+                                    ((ChatListFragment) fragment).addNewChat(chat.getData());
                                 }
                             } else {
                                 showMessage(createChatErrorMessage);
@@ -213,7 +215,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(ChatList.Data chat) {
-        showMessage("Clicked");
+        Intent intent = MessageListActivity.getCallingIntent(this, chat.getId(), chat.getName());
+        startActivity(intent);
     }
 
     @Override

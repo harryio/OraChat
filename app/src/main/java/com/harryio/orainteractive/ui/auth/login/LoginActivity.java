@@ -27,6 +27,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import static com.harryio.orainteractive.PrefUtils.KEY_AUTH_TOKEN;
 import static com.harryio.orainteractive.PrefUtils.KEY_IS_LOGGED_IN;
+import static com.harryio.orainteractive.PrefUtils.KEY_USER_ID;
 import static com.harryio.orainteractive.Utils.showMessage;
 
 public class LoginActivity extends AppCompatActivity {
@@ -120,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
     private void onSuccessfulLogin(AuthResponse authResponse) {
         prefUtils.put(KEY_AUTH_TOKEN,
                 "Bearer " + authResponse.getData().getToken());
+        prefUtils.put(KEY_USER_ID, authResponse.getData().getId());
         prefUtils.put(KEY_IS_LOGGED_IN, true);
 
         showMessage(this, loginSuccessfulMessage);

@@ -30,7 +30,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import static com.harryio.orainteractive.PrefUtils.KEY_AUTH_TOKEN;
 
-public class ChatsFragment extends Fragment {
+public class ChatListFragment extends Fragment {
     @BindView(R.id.progressView)
     ProgressBar progressView;
     @BindView(R.id.recyclerView)
@@ -99,7 +99,6 @@ public class ChatsFragment extends Fragment {
                         public void onNext(ChatList chatList) {
                             if (chatList.isSuccess()) {
                                 adapter.swapData(chatList.getData());
-                                recyclerView.setVisibility(View.VISIBLE);
                                 showContentView();
                                 listener.onChatsLoaded();
                             } else {
