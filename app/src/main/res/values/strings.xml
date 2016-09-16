@@ -31,4 +31,6 @@
 
     <!--Chat-->
     <string name="fetch_chat_list_error">Failed to fetch chat list</string>
+    <string name="create_chat_error">Failed to create new chat</string>
+    <string name="create_chat_progress">Creating new chat…</string>
 </resources>

@@ -5,6 +5,8 @@ import com.harryio.orainteractive.ui.auth.AuthResponse;
 import com.harryio.orainteractive.ui.auth.login.LoginRequest;
 import com.harryio.orainteractive.ui.auth.register.RegisterRequest;
 import com.harryio.orainteractive.ui.chat.Chat;
+import com.harryio.orainteractive.ui.chat.ChatList;
+import com.harryio.orainteractive.ui.chat.CreateChatRequest;
 
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -29,7 +31,11 @@ public interface OraService {
                                          @Body EditProfileRequest request);
 
     @GET("chats")
-    Observable<Chat> getChatList(@Header("Authorization") String authorization,
-                                 @Query("q") String query, @Query("page") String page,
-                                 @Query("limit") Number limit);
+    Observable<ChatList> getChatList(@Header("Authorization") String authorization,
+                                     @Query("q") String query, @Query("page") String page,
+                                     @Query("limit") Number limit);
+
+    @POST("chats")
+    Observable<Chat> createChat(@Header("Authorization") String authorization,
+                                @Body CreateChatRequest request);
 }

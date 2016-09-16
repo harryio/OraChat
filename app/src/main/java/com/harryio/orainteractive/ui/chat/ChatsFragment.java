@@ -58,7 +58,7 @@ public class ChatsFragment extends Fragment {
     private void setUpRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new ChatListAdapter(getActivity(), new ArrayList<Chat.Data>(0));
+        adapter = new ChatListAdapter(getActivity(), new ArrayList<ChatList.Data>(0));
         recyclerView.setAdapter(adapter);
     }
 
@@ -69,7 +69,7 @@ public class ChatsFragment extends Fragment {
             OraService oraService = OraServiceProvider.getInstance();
             subscription = oraService.getChatList(token, "Chat", String.valueOf(1), 20)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<Chat>() {
+                    .subscribe(new Subscriber<ChatList>() {
                         @Override
                         public void onCompleted() {
 
@@ -83,17 +83,29 @@ public class ChatsFragment extends Fragment {
                         }
 
                         @Override
-                        public void onNext(Chat chat) {
+                        public void onNext(ChatList chatList) {
                             progressView.setVisibility(View.GONE);
-                            if (chat.isSuccess()) {
-                                adapter.swapData(chat.getData());
+                            if (chatList.isSuccess()) {
+                                adapter.swapData(chatList.getData());
                                 recyclerView.setVisibility(View.VISIBLE);
+                                listener.onChatsLoaded();
                             } else {
                                 listener.showMessage(fetchChatListErrorMessage);
                             }
                         }
                     });
         }
+    }
+
+    public void addNewChat(Chat.Data chat) {
+        ChatList.Data data = new ChatList.Data();
+        data.setCreated(chat.getCreated());
+        data.setId(chat.getId());
+        data.setName(chat.getName());
+        data.setUser_id(chat.getUser_id());
+        data.setUser(chat.getUser());
+
+        adapter.addItem(data);
     }
 
     @Override
@@ -122,5 +134,7 @@ public class ChatsFragment extends Fragment {
 
     public interface OnFragmentInteractionListener {
         void showMessage(String message);
+
+        void onChatsLoaded();
     }
 }

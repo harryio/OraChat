@@ -18,9 +18,9 @@ import butterknife.ButterKnife;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHolder> {
     private Context context;
-    private List<Chat.Data> chats;
+    private List<ChatList.Data> chats;
 
-    public ChatListAdapter(Context context, ArrayList<Chat.Data> chats) {
+    public ChatListAdapter(Context context, ArrayList<ChatList.Data> chats) {
         this.chats = chats;
         this.context = context;
     }
@@ -34,13 +34,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
     @Override
     public void onBindViewHolder(ChatHolder holder, int position) {
-        Chat.Data chat = chats.get(position);
+        ChatList.Data chat = chats.get(position);
         holder.chatNameTextView.setText(chat.getName());
 
-        String str = String.format("%1s - %2s", chat.getLast_message().getUser().getName(),
-                Utils.getSimpleDateString(chat.getLast_message().getCreated()));
-        holder.fromUserTextView.setText(str);
-        holder.lastMessageTextView.setText(chat.getLast_message().getMessage());
+        ChatList.Data.LastMessage lastMessage = chat.getLast_message();
+
+        if (lastMessage != null) {
+            String str = String.format("%1s - %2s", lastMessage.getUser().getName(),
+                    Utils.getSimpleDateString(lastMessage.getCreated()));
+            holder.fromUserTextView.setText(str);
+            holder.lastMessageTextView.setText(lastMessage.getMessage());
+        }
 
         String chatCreateTime = chat.getCreated();
         if (Utils.isToday(chatCreateTime)) {
@@ -50,9 +54,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         }
     }
 
-    public void swapData(List<Chat.Data> chats) {
+    public void swapData(List<ChatList.Data> chats) {
         this.chats = chats;
         notifyDataSetChanged();
+    }
+
+    public void addItem(ChatList.Data chat) {
+        chats.add(0, chat);
+        notifyItemInserted(0);
     }
 
     @Override
