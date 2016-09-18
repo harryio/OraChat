@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -105,6 +106,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void animateInFab() {
+        fab.setVisibility(View.VISIBLE);
+
         Animation showAnimation = AnimationUtils.loadAnimation(this, R.anim.fab_in);
         showAnimation.setDuration(ANIM_DURATION);
         showAnimation.setInterpolator(new LinearOutSlowInInterpolator());

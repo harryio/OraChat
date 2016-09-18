@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,6 +44,7 @@ public class MessageListActivity extends AppCompatActivity {
     private static final String TAG = "MessageListActivity";
     private static final String EXTRA_CHAT_ID = "CHAT_ID";
     private static final String EXTRA_CHAT_NAME = "CHAT_NAME";
+    private static final int ANIMATION_DURATION = 200;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -71,6 +75,8 @@ public class MessageListActivity extends AppCompatActivity {
     private MessageListAdapter adapter;
     private ProgressDialog createMessageDialog;
     private OraService oraService;
+
+    private boolean isFabShowing;
 
     /**
      * Returns intent through which this activity can be launched
@@ -166,6 +172,7 @@ public class MessageListActivity extends AppCompatActivity {
                                     //Update message list with data
                                     adapter.swapData(messageList.getMessages());
                                     showContentView();
+                                    animateInFab();
                                 } else {
                                     //Failed to fetch message list from network
                                     showErrorView(fetchMessageListError);
@@ -178,6 +185,35 @@ public class MessageListActivity extends AppCompatActivity {
         } else {
             //No internet connection
             showErrorView(noConnectionMessage);
+        }
+    }
+
+    private void animateInFab() {
+        if (!isFabShowing) {
+            fab.setVisibility(View.VISIBLE);
+
+            Animation showAnimation = AnimationUtils.loadAnimation(this, R.anim.fab_in);
+            showAnimation.setDuration(ANIMATION_DURATION);
+            showAnimation.setInterpolator(new LinearOutSlowInInterpolator());
+            showAnimation.setFillAfter(true);
+            showAnimation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    isFabShowing = true;
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            fab.startAnimation(showAnimation);
         }
     }
 
