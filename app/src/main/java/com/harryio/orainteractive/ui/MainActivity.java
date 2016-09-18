@@ -7,12 +7,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.ScaleAnimation;
+import android.view.animation.AnimationUtils;
 
 import com.harryio.orainteractive.PrefUtils;
 import com.harryio.orainteractive.R;
@@ -106,15 +105,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void animateInFab() {
-        ScaleAnimation scaleAnimation = new ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF,
-                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scaleAnimation.setFillAfter(true);
-        scaleAnimation.setInterpolator(new DecelerateInterpolator());
-        scaleAnimation.setDuration(ANIM_DURATION);
-        scaleAnimation.setAnimationListener(new Animation.AnimationListener() {
+        Animation showAnimation = AnimationUtils.loadAnimation(this, R.anim.fab_in);
+        showAnimation.setDuration(ANIM_DURATION);
+        showAnimation.setInterpolator(new LinearOutSlowInInterpolator());
+        showAnimation.setFillAfter(true);
+        showAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                fab.setVisibility(View.VISIBLE);
+
             }
 
             @Override
@@ -127,16 +125,16 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-        fab.startAnimation(scaleAnimation);
+
+        fab.startAnimation(showAnimation);
     }
 
     private void animateOutFab() {
-        ScaleAnimation scaleAnimation = new ScaleAnimation(1f, 0f, 1f, 0f, Animation.RELATIVE_TO_SELF,
-                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scaleAnimation.setFillAfter(true);
-        scaleAnimation.setInterpolator(new AccelerateInterpolator());
-        scaleAnimation.setDuration(ANIM_DURATION);
-        scaleAnimation.setAnimationListener(new Animation.AnimationListener() {
+        Animation hideAnimation = AnimationUtils.loadAnimation(this, R.anim.fab_out);
+        hideAnimation.setDuration(ANIM_DURATION);
+        hideAnimation.setInterpolator(new FastOutLinearInInterpolator());
+        hideAnimation.setFillAfter(true);
+        hideAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
 
@@ -152,7 +150,8 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-        fab.startAnimation(scaleAnimation);
+
+        fab.startAnimation(hideAnimation);
     }
 
     @OnClick(R.id.fab)
