@@ -37,12 +37,11 @@
 
         <Button
             android:id="@+id/register"
+            style="@style/OraButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/colorPrimary"
-            android:text="@string/register"
-            android:textColor="@color/white"/>
+            android:text="@string/register"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,7 +62,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/login_here"
-                android:textColor="@color/colorPrimary"/>
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"/>
 
         </LinearLayout>
 

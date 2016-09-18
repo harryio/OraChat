@@ -17,4 +17,9 @@
     <style name="TextViewStyle">
         <item name="android:textColor">@color/primary_text_color</item>
     </style>
+
+    <style name="OraButton">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>

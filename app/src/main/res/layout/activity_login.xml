@@ -63,12 +63,11 @@
 
         <Button
             android:id="@+id/login"
+            style="@style/OraButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/colorPrimary"
-            android:text="@string/login"
-            android:textColor="@color/white"/>
+            android:text="@string/login"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,7 +88,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/register_here"
-                android:textColor="@color/colorPrimary"/>
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
