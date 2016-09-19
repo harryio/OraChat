@@ -1,5 +1,5 @@
 # OraChat
-Android implementation of code challenge from: http://challenge.orainteractive.com
+Android implementation of code challenge from: challenge.orainteractive.com
 
 ##Installation
 Download OraChat.apk and place it on your Android device and install it manually. [Note: You might need to enable install apps from unknown sources in your device's settings.]
